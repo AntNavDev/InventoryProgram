@@ -2,14 +2,15 @@
 #include <string>
 #include <fstream>
 #include <vector>
+#include <cstdlib>
 
 using namespace std;
 
 struct Item{
-	string description = "";
-	int    quantity = 0;
-	double wholeCost = 0,
-		   retailCost = 0;
+	string description;
+	int    quantity;
+	double wholeCost,
+	       retailCost;
 	string dateAdded;
 };
 
@@ -40,7 +41,7 @@ void populateVector(vector<Item> &stock){
 	const int SIZE = 81;
 	char fileContents[SIZE] = "";
 	Item item;
-	inventory.open("/SpuriousInventory.txt", ios::in);
+	inventory.open("\\SpuriousInventory.txt", ios::in);
 	if (inventory.fail()){
 		cout << "Inventory is currently empty." << endl;
 	}
@@ -188,7 +189,7 @@ void editItem(Item &itemEdit){
 
 void writeInvFile(vector<Item> stock){
 	ofstream inventory;
-	inventory.open("/SpuriousInventory.txt", ios::out);
+	inventory.open("\\SpuriousInventory.txt", ios::out);
 	for (unsigned int index = 0; index < stock.size(); index++){
 		inventory << stock[index].description << "\n";
 		inventory << stock[index].quantity << "\n";
@@ -232,7 +233,7 @@ string isValidDate(string date){
 	string check = "";
 	string retDate = "";
 	int slashCounter = 0;
-	for (int index = 0; index < date.length(); index++){
+	for (unsigned int index = 0; index < date.length(); index++){
 		if (date[index] != '/'){
 			check += date[index];
 		}
