@@ -1,7 +1,6 @@
 #include <iostream>
 #include <string>
 #include <fstream>
-#include <iomanip>
 #include <vector>
 
 using namespace std;
@@ -11,19 +10,20 @@ struct Item{
 	int    quantity = 0;
 	double wholeCost = 0,
 		   retailCost = 0;
-	string dateAdded = "";
+	string dateAdded;
 };
 
 void populateVector(vector<Item> &stock);
 void executeChoice(int menuChoice, vector<Item> &stock);
 int displayMenu();
-Item collectInvInfo();
+Item collectItemInfo();
 void addNewItem(vector<Item> &stock, Item item);
 void displayInventory(vector<Item> &stock);
 void editInventory(vector<Item> &stock);
 void editItem(Item &itemEdit);
 void writeInvFile(vector<Item> stock);
 void deleteInvItem(vector<Item> &stock);
+string isValidDate(string date);
 
 int main(){
 	vector<Item> stock;
@@ -85,11 +85,11 @@ void executeChoice(int menuChoice, vector<Item> &stock){
 		cout << "Inventory currently empty." << endl;
 	}
 	switch (menuChoice){
-	case 1: addNewItem(stock, collectInvInfo()); break;
+	case 1: addNewItem(stock, collectItemInfo()); break;
 	case 2: displayInventory(stock); break;
 	case 3: editInventory(stock); break;
 	case 4: deleteInvItem(stock); break;
-	case 0: exit(0);
+	case 99: exit(0);
 	default: cout << "Hmmm. That doesn't seem to be a choice..." << endl;
 	}
 }
@@ -100,13 +100,13 @@ int displayMenu(){
 	cout << "2. Display Items" << endl;
 	cout << "3. Edit Item" << endl;
 	cout << "4. Delete Item" << endl;
-	cout << "0. End Program" << endl;
+	cout << "99. End Program" << endl;
 	cout << endl << "Menu Choice >";
 	getline(cin, menuChoice);
 	return atoi(menuChoice.c_str());
 }
 
-Item collectInvInfo(){
+Item collectItemInfo(){
 	Item newItem;
 	string input;
 	cout << "Enter description:";
@@ -135,6 +135,10 @@ Item collectInvInfo(){
 	newItem.retailCost = atof(input.c_str());
 	cout << "Date item was added: ";
 	getline(cin, input);
+	while (isValidDate(input) == ""){
+		cout << "Invalid Date. Date must be between 01/01/1971 and 01/01/2100 and must be in the format XX/XX/XXXX" << endl;
+		getline(cin, input);
+	}
 	newItem.dateAdded = input;
 	return newItem;
 }
@@ -179,7 +183,7 @@ void editInventory(vector<Item> &stock){
 void editItem(Item &itemEdit){
 	cout << itemEdit.description << " was selected." << endl;
 	cout << "Please enter in the new information: " << endl;
-	itemEdit = collectInvInfo();
+	itemEdit = collectItemInfo();
 }
 
 void writeInvFile(vector<Item> stock){
@@ -220,5 +224,54 @@ void deleteInvItem(vector<Item> &stock){
 			writeInvFile(stock);
 			cout << "Item deleted!" << endl;
 		}
+	}
+}
+
+string isValidDate(string date){
+	bool isDate = true;
+	string check = "";
+	string retDate = "";
+	int slashCounter = 0;
+	for (int index = 0; index < date.length(); index++){
+		if (date[index] != '/'){
+			check += date[index];
+		}
+		else if (date[index] == '/'){
+			slashCounter++;
+			switch (slashCounter){
+			case 1: 
+				if (atoi(check.c_str()) < 1 || atoi(check.c_str()) > 12){
+					isDate = false;
+				}
+				else {
+					retDate += (check + '/');
+					check = "";
+				}
+				break;
+			case 2:
+				if (atoi(check.c_str()) < 1 || atoi(check.c_str()) > 31){
+					isDate = false;
+				}
+				else {
+					retDate += (check + '/');
+					check = "";
+				}
+				break;
+			default:
+				isDate = false;
+			}
+		}
+	}
+	if (atoi(check.c_str()) < 1970 || atoi(check.c_str()) > 2100){
+		isDate = false;
+	}
+	else {
+		retDate += check;
+	}
+	if (isDate == true){
+		return retDate;
+	}
+	else {
+		return "";
 	}
 }
